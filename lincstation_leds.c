@@ -273,9 +273,12 @@ int read_network_stats(network_stats_t *network) {
   }
     
   // Skip header lines
-  fgets(line, sizeof(line), fp);
-  fgets(line, sizeof(line), fp);
-    
+  if (!fgets(line, sizeof(line), fp) || !fgets(line, sizeof(line), fp)) {
+    fprintf(stderr, "Failed to read /proc/net/dev header lines\n");
+    fclose(fp);
+    return -1;
+  }
+
   network->is_active = 0;
     
   while (fgets(line, sizeof(line), fp)) {
