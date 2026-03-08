@@ -208,7 +208,7 @@ int read_disk_stats(disk_stats_t *disks, int num_disks) {
     
   while (fgets(line, sizeof(line), fp)) {
     int parsed = sscanf(
-      line, "%u %u %s %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu",
+      line, "%u %u %31s %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu",
       &major, &minor, device, &reads, &reads_merged, &read_sectors, &read_time,
       &writes, &writes_merged, &write_sectors, &write_time,
       &io_in_progress, &io_time, &weighted_io_time
