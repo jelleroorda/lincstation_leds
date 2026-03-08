@@ -21,6 +21,16 @@
 #define LED_ON_REG_1    0xA1
 #define LED_OFF_REG_1   0xB1
 
+// LED blinking registers
+#define BLINK_SWITCH    0x50
+#define BLINK_HDD0      0x52
+#define BLINK_HDD1      0x54
+#define BLINK_NETWORK    0x56
+#define BLINK_NVME0      0x58
+#define BLINK_NVME1      0x5A
+#define BLINK_NVME2      0x5C
+#define BLINK_NVME3      0x5E
+
 // LED bit masks
 #define HDD0_WHITE      0x04
 #define HDD0_RED        0x08
@@ -75,6 +85,7 @@ void update_network_led(network_stats_t *network);
 int read_disk_stats(disk_stats_t *disks, int num_disks);
 int read_network_stats(network_stats_t *network);
 void signal_handler(int signal);
+void stop_all_blinking(void);
 void turn_off_all_leds(void);
 
 // Signal handler for graceful shutdown
@@ -187,6 +198,20 @@ void turn_off_all_leds(void) {
   write_i2c_register(LED_OFF_REG_1, NVME2_RED);
   write_i2c_register(LED_OFF_REG_1, NVME3_WHITE);
   write_i2c_register(LED_OFF_REG_1, NVME3_RED);
+}
+
+// Stop all LED blinking
+void stop_all_blinking(void) {
+  if (debug) printf("Stopping all LED blinking...\n");
+
+  write_i2c_register(BLINK_SWITCH, 0x00);
+  write_i2c_register(BLINK_HDD0, 0x00);
+  write_i2c_register(BLINK_HDD1, 0x00);
+  write_i2c_register(BLINK_NETWORK, 0x00);
+  write_i2c_register(BLINK_NVME0, 0x00);
+  write_i2c_register(BLINK_NVME1, 0x00);
+  write_i2c_register(BLINK_NVME2, 0x00);
+  write_i2c_register(BLINK_NVME3, 0x00);
 }
 
 // Read disk statistics from /proc/diskstats
@@ -410,7 +435,8 @@ int main(int argc, char *argv[]) {
     return 1;
   }
     
-  // Turn off all LEDs initially
+  // Stop any blinking and turn off all LEDs initially
+  stop_all_blinking();
   turn_off_all_leds();
     
   // Initialize disk stats (first read to establish baseline)
